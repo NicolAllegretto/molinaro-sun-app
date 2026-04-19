@@ -276,38 +276,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
 <script src="https://unpkg.com/@turf/turf@7.3.0/turf.min.js"></script>
 <script>
 // ─── SERVICE WORKER (registrazione inline) ─────────────────────────────────
-const SW_CODE = `
-const CACHE = 'pv-precheck-v1';
-const PRECACHE = [
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js',
-  'https://unpkg.com/@turf/turf@7.3.0/turf.min.js'
-];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', e => {
-  // PVGIS: rete sempre (mai in cache)
-  if(e.request.url.includes('re.jrc.ec.europa.eu') || e.request.url.includes('nominatim')) return;
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-    if(res.ok && e.request.url.startsWith('https://unpkg.com')){
-      const clone = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, clone));
-    }
-    return res;
-  })));
-});
-`;
-
 if ('serviceWorker' in navigator) {
-  const blob = new Blob([SW_CODE], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(() => {});
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
 // ─── INSTALL PROMPT ────────────────────────────────────────────────────────
