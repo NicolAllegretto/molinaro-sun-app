@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>MolinaroSUN</title>
+
+<!-- PWA manifest inline via data URI -->
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22:%22MolinaroSUN%22,
+  %22short_name%22:%22MolinaroSUN%22,
+  %22description%22:%22MolinaroSUN%20-%20Prefattibilit%C3%A0%20fotovoltaica%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%2308111d%22,
+  %22theme_color%22:%22%237cc8ff%22,
+  %22orientation%22:%22any%22,
+  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Cdefs%3E%3CradialGradient%20id%3D%27bg%27%20cx%3D%2750%25%27%20cy%3D%2740%25%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%230d1f35%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2308111d%27%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27100%27%20fill%3D%27url(%23bg)%27%2F%3E%3Cg%20transform%3D%27translate(256,210)%27%3E%3Ccircle%20r%3D%2790%27%20fill%3D%27%23ffd166%27%2F%3E%3Ccircle%20r%3D%2768%27%20fill%3D%27%23ffb703%27%2F%3E%3Crect%20x%3D%27-8%27%20y%3D%27-155%27%20width%3D%2716%27%20height%3D%2748%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%2F%3E%3Crect%20x%3D%27-8%27%20y%3D%27107%27%20width%3D%2716%27%20height%3D%2748%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%2F%3E%3Crect%20x%3D%27107%27%20y%3D%27-8%27%20width%3D%2748%27%20height%3D%2716%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%2F%3E%3Crect%20x%3D%27-155%27%20y%3D%27-8%27%20width%3D%2748%27%20height%3D%2716%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%2F%3E%3Crect%20x%3D%2769%27%20y%3D%27-120%27%20width%3D%2716%27%20height%3D%2748%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%20transform%3D%27rotate(45)%27%2F%3E%3Crect%20x%3D%2769%27%20y%3D%2772%27%20width%3D%2716%27%20height%3D%2748%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%20transform%3D%27rotate(90)%27%2F%3E%3Crect%20x%3D%2769%27%20y%3D%27-120%27%20width%3D%2716%27%20height%3D%2748%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%20transform%3D%27rotate(135)%27%2F%3E%3Crect%20x%3D%2769%27%20y%3D%27-120%27%20width%3D%2716%27%20height%3D%2748%27%20rx%3D%278%27%20fill%3D%27%23ffd166%27%20transform%3D%27rotate(-45)%27%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%27256%27%20y%3D%27430%27%20text-anchor%3D%27middle%27%20font-family%3D%27Arial%2C%20sans-serif%27%20font-weight%3D%27900%27%20font-size%3D%2790%27%20fill%3D%27%237cc8ff%27%20letter-spacing%3D%27-2%27%3EMolinaroSUN%3C%2Ftext%3E%3C%2Fsvg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]
+}" />
+
+<meta name="theme-color" content="#08111d" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="MolinaroSUN" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+<style>
+:root{
+  --bg:#08111d; --panel:rgba(9,17,29,.92); --panel2:rgba(14,24,40,.94); --line:rgba(255,255,255,.10);
+  --text:#eef5ff; --muted:#adbed6; --accent:#7cc8ff; --accent2:#7ef0ff; --ok:#39c77c; --no:#ff6e6e;
+  --shadow:0 16px 40px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+body{overflow:hidden}
+#map{position:fixed;inset:0;background:#d8dee7}
+.topbar{position:fixed;left:12px;right:12px;top:12px;z-index:1000;display:grid;gap:8px}
+.bar,.chipbar,.overlay,.search-results{
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow);
+}
+.bar{border-radius:18px;padding:8px;display:grid;grid-template-columns:1fr auto auto;gap:8px}
+.chipbar{border-radius:18px;padding:8px;display:flex;gap:8px;flex-wrap:wrap}
+input,button{
+  width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.08);
+  color:var(--text); padding:11px 12px; font-size:14px; outline:none;
+}
+select{
+  width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.15);
+  background:#0f1e30; color:var(--text); padding:11px 36px 11px 12px; font-size:14px; outline:none;
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237cc8ff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center;
+  cursor:pointer;
+}
+select option{
+  background:#0f1e30 !important; color:#eef5ff !important;
+}
+button{cursor:pointer;font-weight:700}
+button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#06111f; border:none}
+button.ghost{background:rgba(255,255,255,.08)}
+button.small{width:auto;padding:10px 12px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.section{background:var(--panel2); border:1px solid var(--line); border-radius:16px; padding:12px; margin-top:10px}
+.section h3{margin:0 0 10px;font-size:14px}
+.helper{color:var(--muted);font-size:12px;line-height:1.45}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px}
+.stat .k{font-size:11px;color:var(--muted);margin-bottom:6px}
+.stat .v{font-size:22px;font-weight:800}
+.stat .u{font-size:12px;color:var(--muted);margin-left:4px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-block;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-size:11px;color:var(--muted)}
+.overlay-backdrop{position:fixed;inset:0;background:rgba(3,8,18,.45);backdrop-filter:blur(3px);display:none;z-index:1190}
+.overlay-backdrop.show{display:block}
+.overlay{position:fixed;left:0;right:0;bottom:0;z-index:1200;max-height:82vh;overflow:auto;border-radius:24px 24px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom));display:none}
+.overlay.show{display:block}
+.overlay-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.overlay-title{font-size:18px;font-weight:800}
+.summary{font-size:13px;line-height:1.55}
+.search-results{position:fixed;left:12px;right:12px;top:68px;z-index:1010;border-radius:16px;overflow:auto;max-height:42vh;display:none}
+.search-item{padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:rgba(255,255,255,.05)}
+.search-item .t{font-weight:800;font-size:14px;margin-bottom:4px}
+.search-item .s{font-size:12px;color:var(--muted)}
+.module-list{display:none;gap:8px;margin-top:10px}
+.module-list.show{display:grid}
+.module-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px}
+.module-card h4{margin:0 0 4px;font-size:14px}
+.module-card .meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+.badge-ok{background:rgba(57,199,124,.18)!important;border-color:rgba(57,199,124,.45)!important;color:#dff8ea!important}
+.badge-no{background:rgba(255,110,110,.18)!important;border-color:rgba(255,110,110,.45)!important;color:#ffe9e9!important}
+.badge-neutral{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.18)!important;color:var(--muted)!important}
+.feas-ok{background:rgba(57,199,124,.10)!important;border-color:rgba(57,199,124,.35)!important}
+.feas-no{background:rgba(255,110,110,.10)!important;border-color:rgba(255,110,110,.35)!important}
+.feas-neutral{background:rgba(255,255,255,.04)!important}
+.leaflet-editing-icon{
+  border-radius:50%!important; background:radial-gradient(circle at 35% 35%, #fff 0 25%, #7ef0ff 26% 65%, #1e90ff 66% 100%)!important;
+  border:2px solid rgba(255,255,255,.92)!important; box-shadow:0 4px 10px rgba(0,0,0,.35)!important;
+  width:16px!important; height:16px!important; margin-left:-8px!important; margin-top:-8px!important;
+}
+.leaflet-draw-tooltip:before{border-right-color:rgba(9,17,29,.95)!important}
+/* Nasconde barra strumenti Leaflet-draw (usiamo i nostri bottoni) */
+.leaflet-draw-toolbar,.leaflet-control-zoom{display:none!important}
+/* Stile bottoni azione disegno (Finish / Delete last point / Cancel) */
+.leaflet-draw-actions a{
+  background:rgba(9,17,29,.95)!important;color:#7cc8ff!important;
+  border:1px solid rgba(124,200,255,.35)!important;
+  border-radius:10px!important;margin-bottom:4px!important;
+  font-size:13px!important;font-weight:700!important;
+  padding:8px 14px!important;box-shadow:0 4px 16px rgba(0,0,0,.4)!important;
+  backdrop-filter:blur(10px)!important;
+}
+.leaflet-draw-actions a:hover{background:rgba(124,200,255,.15)!important}
+.leaflet-draw-actions li:first-child a{color:#39c77c!important;border-color:rgba(57,199,124,.4)!important}
+.leaflet-draw-actions li:last-child a{color:#ff6e6e!important;border-color:rgba(255,110,110,.35)!important}
+.leaflet-control-container .leaflet-bottom.leaflet-right{bottom:14px;right:14px}
+.leaflet-draw-tooltip{border-radius:14px;background:rgba(9,17,29,.95);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--text)}
+/* install banner */
+#installBanner{
+  position:fixed;bottom:0;left:0;right:0;z-index:2000;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#06111f;padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+  display:none;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:600;
+}
+#installBanner.show{display:flex}
+#installBanner button{width:auto;padding:8px 18px;background:#06111f;color:var(--accent);border-radius:12px;border:none;font-weight:700;font-size:13px}
+#installBanner .dismiss{background:transparent;color:#06111f;opacity:.7;font-size:20px;padding:4px 8px}
+@media (min-width:860px){
+  .topbar{left:16px;right:auto;width:min(760px,calc(100vw - 32px))}
+  .search-results{left:16px;right:auto;width:min(760px,calc(100vw - 32px))}
+  .overlay{left:auto;right:16px;bottom:16px;width:460px;max-height:calc(100vh - 32px);border-radius:24px}
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="topbar">
+  <div class="bar">
+    <input id="searchInput" type="text" placeholder="Cerca località, indirizzo, comune..." />
+    <button id="searchBtn" class="primary small">Cerca</button>
+    <button id="gpsBtn" class="ghost small">📍 GPS</button>
+  </div>
+  <div class="chipbar">
+    <button id="drawPolygonBtn" class="primary small" title="Disegna poligono">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><polygon points="12,2 22,8 19,20 5,20 2,8"/></svg>Poligono</button>
+    <button id="drawRectBtn" class="ghost small" title="Disegna rettangolo">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>Rettangolo</button>
+    <button id="clearBtn" class="ghost small">🗑️ Cancella</button>
+    <button id="fitBtn" class="ghost small">🎯 Adatta</button>
+    <select id="baseLayerSelector" class="ghost small" style="width:auto">
+      <option value="satellite">Satellite</option>
+      <option value="street">Stradale</option>
+    </select>
+    <button id="openPanelBtn" class="ghost small">⚡ Prefattibilità FV</button>
+  </div>
+</div>
+
+<div id="searchResults" class="search-results"></div>
+<div id="overlayBackdrop" class="overlay-backdrop"></div>
+
+<div id="overlay" class="overlay">
+  <div class="overlay-head">
+    <div>
+      <div class="overlay-title">⚡ Prefattibilità FV + PVGIS</div>
+      <div class="helper">La producibilità viene letta direttamente da PVGIS (JRC).</div>
+    </div>
+    <button id="closePanelBtn" class="ghost small">Chiudi</button>
+  </div>
+
+  <div class="section">
+    <h3>📐 1. Geometria area</h3>
+    <div class="stats">
+      <div class="stat"><div class="k">Area lorda</div><div><span class="v" id="grossArea">0</span><span class="u">m²</span></div></div>
+      <div class="stat"><div class="k">Perimetro</div><div><span class="v" id="perimeter">0</span><span class="u">m</span></div></div>
+      <div class="stat"><div class="k">Area utile</div><div><span class="v" id="usableArea">0</span><span class="u">m²</span></div></div>
+      <div class="stat"><div class="k">Offset</div><div><span class="v" id="offsetArea">0</span><span class="u">m²</span></div></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Tipo offset</label><select id="offsetMode"><option value="percent">Percentuale %</option><option value="sqm">Metri quadrati</option></select></div>
+      <div><label>Valore offset</label><input id="offsetValue" type="number" step="0.1" value="10"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🔋 2. Modulo fotovoltaico</h3>
+    <div class="grid2">
+      <div><label>Nome modulo</label><input id="moduleName" type="text" value="Modulo FV"></div>
+      <div><label>Potenza modulo (Wp)</label><input id="modulePower" type="number" step="1" value="500"></div>
+      <div><label>Larghezza modulo (m)</label><input id="moduleWidth" type="number" step="0.001" value="1.134"></div>
+      <div><label>Altezza modulo (m)</label><input id="moduleHeight" type="number" step="0.001" value="1.722"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="saveModuleBtn" class="primary small">💾 Salva modulo</button>
+      <button id="toggleLibraryBtn" class="ghost small">📚 Libreria moduli</button>
+    </div>
+    <div id="moduleLibrary" class="module-list"></div>
+  </div>
+
+  <div class="section">
+    <h3>☀️ 3. Posa e obiettivo</h3>
+    <div class="grid2">
+      <div><label>Distanza bordo (m)</label><input id="edgeGap" type="number" step="0.01" value="0.20"></div>
+      <div><label>Interspazio moduli (m)</label><input id="moduleGap" type="number" step="0.01" value="0.02"></div>
+      <div><label>Orientamento posa</label><select id="moduleOrientation"><option value="portrait">Verticale</option><option value="landscape">Orizzontale</option></select></div>
+      <div><label>Inclinazione (°)</label><input id="tilt" type="number" step="1" value="25"></div>
+      <div>
+        <label>Azimut PVGIS (°)</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button type="button" id="azimuthMinus" class="ghost small" style="width:42px;padding:10px 0;font-size:18px;flex-shrink:0">−</button>
+          <input id="azimuth" type="number" step="1" value="0" style="text-align:center;flex:1">
+          <button type="button" id="azimuthPlus" class="ghost small" style="width:42px;padding:10px 0;font-size:18px;flex-shrink:0">+</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <button type="button" class="ghost small azimuth-preset" data-val="-90" style="flex:1;margin-right:3px;font-size:11px;padding:6px 2px">Est −90°</button>
+          <button type="button" class="ghost small azimuth-preset" data-val="0"   style="flex:1;margin:0 3px;font-size:11px;padding:6px 2px">Sud 0°</button>
+          <button type="button" class="ghost small azimuth-preset" data-val="90"  style="flex:1;margin-left:3px;font-size:11px;padding:6px 2px">Ovest +90°</button>
+        </div>
+      </div>
+      <div><label>Perdite PVGIS (%)</label><input id="losses" type="number" step="0.1" value="14"></div>
+      <div><label>Cliente / sito</label><input id="clientName" type="text" placeholder="Nome cliente / sito"></div>
+      <div><label>Origine producibilità</label><input id="yieldSource" type="text" value="PVGIS (JRC)" readonly></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Modalità obiettivo</label><select id="targetMode"><option value="auto">Automatica da area</option><option value="modules">Numero moduli fissato</option><option value="kwp">Potenza obiettivo fissata</option></select></div>
+      <div><label id="targetValueLabel">Valore obiettivo</label><input id="targetValue" type="number" step="0.01" value="0" placeholder="Automatico"></div>
+    </div>
+    <div class="helper" style="margin-top:10px">Convenzione PVGIS: <strong>0 = Sud, -90 = Est, 90 = Ovest</strong>.</div>
+    <div class="row" style="margin-top:10px">
+      <button id="pvgisBtn" class="primary small">🌐 Aggiorna da PVGIS</button>
+      <span id="pvgisStatus" class="pill">PVGIS non ancora interrogato</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>📊 4. Risultati</h3>
+    <div class="stats">
+      <div class="stat"><div class="k">Area modulo</div><div><span class="v" id="moduleArea">0</span><span class="u">m²</span></div></div>
+      <div class="stat"><div class="k">Moduli richiesti</div><div><span class="v" id="modulesCount">0</span><span class="u">pz</span></div></div>
+      <div class="stat"><div class="k">Potenza considerata</div><div><span class="v" id="kwp">0</span><span class="u">kWp</span></div></div>
+      <div class="stat"><div class="k">Produzione annua PVGIS</div><div><span class="v" id="annualEnergy">0</span><span class="u">kWh</span></div></div>
+    </div>
+    <div id="feasibilityBox" class="section feas-neutral" style="margin-top:12px;padding:12px">
+      <h3>✅ Verifica di fattibilità</h3>
+      <div class="row" style="margin-bottom:8px"><span id="feasibilityBadge" class="pill badge-neutral">In attesa di verifica</span></div>
+      <div id="feasibilityText" class="summary">Disegna una superficie per ottenere la verifica.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🧾 5. Riepilogo cliente</h3>
+    <div id="summary" class="summary">Disegna una superficie per ottenere il riepilogo.</div>
+    <div class="row" style="margin-top:12px">
+      <button id="printReportBtn" class="primary small">🧾 Report / PDF</button>
+      <button id="copySummaryBtn" class="ghost small">📋 Copia riepilogo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Install banner (Android Chrome) -->
+<div id="installBanner">
+  <span>☀️ Installa MolinaroSUN</span>
+  <div style="display:flex;gap:8px">
+    <button id="installBtn">Installa</button>
+    <button class="dismiss" id="dismissBanner">✕</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<script src="https://unpkg.com/@turf/turf@7.3.0/turf.min.js"></script>
+<script>
+// ─── SERVICE WORKER (registrazione inline) ─────────────────────────────────
+const SW_CODE = `
+const CACHE = 'pv-precheck-v1';
+const PRECACHE = [
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+  'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js',
+  'https://unpkg.com/@turf/turf@7.3.0/turf.min.js'
+];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  // PVGIS: rete sempre (mai in cache)
+  if(e.request.url.includes('re.jrc.ec.europa.eu') || e.request.url.includes('nominatim')) return;
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+    if(res.ok && e.request.url.startsWith('https://unpkg.com')){
+      const clone = res.clone();
+      caches.open(CACHE).then(c => c.put(e.request, clone));
+    }
+    return res;
+  })));
+});
+`;
+
+if ('serviceWorker' in navigator) {
+  const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+
+// ─── INSTALL PROMPT ────────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+});
+document.getElementById('dismissBanner').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// ─── APP ───────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const el = {
+  searchInput:$('searchInput'), searchBtn:$('searchBtn'), gpsBtn:$('gpsBtn'),
+  drawPolygonBtn:$('drawPolygonBtn'), drawRectBtn:$('drawRectBtn'), clearBtn:$('clearBtn'), fitBtn:$('fitBtn'),
+  baseLayerSelector:$('baseLayerSelector'), openPanelBtn:$('openPanelBtn'), closePanelBtn:$('closePanelBtn'),
+  searchResults:$('searchResults'), overlay:$('overlay'), overlayBackdrop:$('overlayBackdrop'),
+  grossArea:$('grossArea'), perimeter:$('perimeter'), usableArea:$('usableArea'), offsetArea:$('offsetArea'),
+  offsetMode:$('offsetMode'), offsetValue:$('offsetValue'),
+  moduleName:$('moduleName'), modulePower:$('modulePower'), moduleWidth:$('moduleWidth'), moduleHeight:$('moduleHeight'),
+  saveModuleBtn:$('saveModuleBtn'), toggleLibraryBtn:$('toggleLibraryBtn'), moduleLibrary:$('moduleLibrary'),
+  edgeGap:$('edgeGap'), moduleGap:$('moduleGap'), moduleOrientation:$('moduleOrientation'),
+  tilt:$('tilt'), azimuth:$('azimuth'), losses:$('losses'), clientName:$('clientName'),
+  targetMode:$('targetMode'), targetValue:$('targetValue'), targetValueLabel:$('targetValueLabel'),
+  yieldSource:$('yieldSource'), pvgisBtn:$('pvgisBtn'), pvgisStatus:$('pvgisStatus'),
+  moduleArea:$('moduleArea'), modulesCount:$('modulesCount'), kwp:$('kwp'), annualEnergy:$('annualEnergy'),
+  feasibilityBox:$('feasibilityBox'), feasibilityBadge:$('feasibilityBadge'), feasibilityText:$('feasibilityText'),
+  summary:$('summary'), printReportBtn:$('printReportBtn'), copySummaryBtn:$('copySummaryBtn')
+};
+
+function fmt(n,d=1){ return Number.isFinite(n) ? Number(n).toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d}) : '-'; }
+function fmt0(n){ return Number.isFinite(n) ? Math.round(n).toLocaleString('it-IT') : '-'; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+let currentLayer = null;
+let drawHandler = null;
+let pvgisEnergyKwh = 0;
+let pvgisLastInputs = null;
+
+const map = L.map('map',{zoomControl:false}).setView([41.131,14.639],18);
+L.control.zoom({position:'bottomright'}).addTo(map);
+const street = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd', maxZoom:22, maxNativeZoom:20, attribution:'&copy; OpenStreetMap contributors &copy; CARTO'});
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:22, maxNativeZoom:19, attribution:'Tiles &copy; Esri'});
+satellite.addTo(map);
+
+const drawnItems = new L.FeatureGroup().addTo(map);
+// Localizzazione italiana per i bottoni azione di Leaflet Draw
+L.drawLocal.draw.toolbar.actions = { title:'Annulla disegno', text:'Annulla' };
+L.drawLocal.draw.toolbar.finish  = { title:'Termina disegno', text:'Fine' };
+L.drawLocal.draw.toolbar.undo    = { title:'Elimina ultimo punto', text:'Elimina punto' };
+L.drawLocal.draw.handlers.polygon.tooltip = { start:'Clicca per iniziare il disegno.', cont:'Clicca per aggiungere un punto.', end:'Clicca sul primo punto per chiudere.' };
+L.drawLocal.draw.handlers.rectangle.tooltip = { start:'Clicca e trascina per disegnare.' };
+const drawControl = new L.Control.Draw({
+  position:'bottomright',
+  edit:{featureGroup:drawnItems, edit:true, remove:true},
+  draw:{
+    polyline:false,circle:false,circlemarker:false,marker:false,
+    polygon:{allowIntersection:false,showArea:true,shapeOptions:{color:'#7ef0ff',weight:3,fillColor:'#4dc7ff',fillOpacity:0.18}},
+    rectangle:{shapeOptions:{color:'#63a4ff',weight:3,fillColor:'#63a4ff',fillOpacity:0.16}}
+  }
+});
+map.addControl(drawControl);
+setTimeout(()=>{
+  const x=document.querySelector('.leaflet-control-zoom-in'); const y=document.querySelector('.leaflet-control-zoom-out');
+  const p=document.querySelector('.leaflet-draw-draw-polygon');
+  if(x) x.title='Zoom avanti'; if(y) y.title='Zoom indietro'; if(p) p.title='Disegna poligono';
+},500);
+
+function openPanel(){ if(!currentLayer){ alert('Disegna prima un\u2019area sulla mappa.'); return; } el.overlay.style.display='block'; el.overlayBackdrop.style.display='block'; requestAnimationFrame(()=>{ el.overlay.classList.add('show'); el.overlayBackdrop.classList.add('show'); }); }
+function closePanel(){ el.overlay.classList.remove('show'); el.overlayBackdrop.classList.remove('show'); setTimeout(()=>{ if(!el.overlay.classList.contains('show')){ el.overlay.style.display='none'; el.overlayBackdrop.style.display='none'; } },250); }
+el.openPanelBtn.addEventListener('click', openPanel);
+el.closePanelBtn.addEventListener('click', closePanel);
+el.overlayBackdrop.addEventListener('click', closePanel);
+
+function startDraw(type){
+  if(drawHandler){ try{ drawHandler.disable(); }catch(e){} }
+  drawHandler = type==='rectangle' ? new L.Draw.Rectangle(map, drawControl.options.draw.rectangle) : new L.Draw.Polygon(map, drawControl.options.draw.polygon);
+  drawHandler.enable();
+}
+el.drawPolygonBtn.addEventListener('click', ()=>startDraw('polygon'));
+el.drawRectBtn.addEventListener('click', ()=>startDraw('rectangle'));
+el.clearBtn.addEventListener('click', ()=>{ drawnItems.clearLayers(); currentLayer=null; pvgisEnergyKwh=0; pvgisLastInputs=null; closePanel(); recalc(); });
+el.fitBtn.addEventListener('click', ()=>{ if(currentLayer) map.fitBounds(currentLayer.getBounds(), {padding:[30,30]}); });
+el.baseLayerSelector.addEventListener('change', ()=>{ if(el.baseLayerSelector.value==='street'){ map.removeLayer(satellite); street.addTo(map);} else { map.removeLayer(street); satellite.addTo(map);} });
+el.gpsBtn.addEventListener('click', ()=>{
+  if(!navigator.geolocation){ alert('Geolocalizzazione non supportata dal browser.'); return; }
+  if(location.protocol==='file:'){
+    alert('GPS non disponibile: l\'app è aperta come file locale.\n\nCarica l\'app su GitHub Pages o altro hosting HTTPS per usare il GPS.');
+    return;
+  }
+  el.gpsBtn.textContent = '⏳ GPS...';
+  el.gpsBtn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      map.setView([pos.coords.latitude, pos.coords.longitude], 20);
+      el.gpsBtn.textContent = '📍 GPS';
+      el.gpsBtn.disabled = false;
+    },
+    err => {
+      el.gpsBtn.textContent = '📍 GPS';
+      el.gpsBtn.disabled = false;
+      const msgs = {1:'Permesso negato. Abilita la posizione per questo sito nelle impostazioni del browser.', 2:'Segnale GPS non disponibile. Riprova all\'aperto.', 3:'Timeout GPS. Riprova.'};
+      alert(msgs[err.code] || 'Impossibile ottenere la posizione.');
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+});
+
+async function geocodeSearch(){
+  const q = el.searchInput.value.trim(); if(!q) return;
+  el.searchBtn.disabled = true; el.searchBtn.textContent='...';
+  try{
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=it&q=${encodeURIComponent(q)}`;
+    const res = await fetch(url, {headers:{'Accept':'application/json'}});
+    const data = await res.json();
+    renderSearchResults(Array.isArray(data) ? data : []);
+  }catch(err){ alert('Ricerca non disponibile al momento.'); }
+  finally{ el.searchBtn.disabled = false; el.searchBtn.textContent='Cerca'; }
+}
+function renderSearchResults(items){
+  if(!items.length){ el.searchResults.innerHTML = '<div class="search-item"><div class="t">Nessun risultato</div><div class="s">Prova con un altro indirizzo o comune.</div></div>'; el.searchResults.style.display='block'; return; }
+  el.searchResults.innerHTML = items.map(it => `<div class="search-item" data-lat="${it.lat}" data-lon="${it.lon}"><div class="t">${esc((it.display_name||'').split(',')[0] || 'Risultato')}</div><div class="s">${esc(it.display_name || '')}</div></div>`).join('');
+  el.searchResults.style.display='block';
+  [...el.searchResults.querySelectorAll('.search-item')].forEach(node=>node.addEventListener('click', ()=>{ map.setView([parseFloat(node.dataset.lat), parseFloat(node.dataset.lon)],20); el.searchResults.style.display='none'; }));
+}
+el.searchBtn.addEventListener('click', geocodeSearch);
+el.searchInput.addEventListener('keydown', e => { if(e.key==='Enter') geocodeSearch(); });
+map.on('click', ()=>{ el.searchResults.style.display='none'; });
+
+function polygonGeoJSON(layer){ return layer.toGeoJSON(); }
+function calcPerimeter(latlngs){ let total=0; for(let i=0;i<latlngs.length;i++) total += map.distance(latlngs[i], latlngs[(i+1)%latlngs.length]); return total; }
+function getOffsetArea(gross){ const value = parseFloat(el.offsetValue.value || 0); return el.offsetMode.value==='percent' ? gross*Math.max(0,value)/100 : Math.max(0,value); }
+function getModuleDims(){ let w = parseFloat(el.moduleWidth.value || 0); let h = parseFloat(el.moduleHeight.value || 0); if(el.moduleOrientation.value==='landscape') [w,h] = [h,w]; return {w,h}; }
+function computeGridModules(usableArea){
+  const {w,h} = getModuleDims(); const gap = Math.max(0, parseFloat(el.moduleGap.value || 0)); const edge = Math.max(0, parseFloat(el.edgeGap.value || 0));
+  if(!currentLayer || !w || !h || usableArea<=0) return 0;
+  const b = currentLayer.getBounds(); const c = b.getCenter();
+  const widthM = map.distance(L.latLng(c.lat, b.getWest()), L.latLng(c.lat, b.getEast()));
+  const heightM = map.distance(L.latLng(b.getSouth(), c.lng), L.latLng(b.getNorth(), c.lng));
+  const usableW = Math.max(0, widthM - 2*edge), usableH = Math.max(0, heightM - 2*edge);
+  const cols = Math.max(0, Math.floor((usableW + gap)/(w + gap))), rows = Math.max(0, Math.floor((usableH + gap)/(h + gap)));
+  return Math.max(0, Math.min(rows*cols, Math.floor(usableArea/(w*h))));
+}
+function updateTargetUi(){
+  const mode = el.targetMode.value;
+  if(mode==='modules'){ el.targetValueLabel.textContent='Valore obiettivo (n. moduli)'; el.targetValue.step='1'; el.targetValue.placeholder='Es. 16'; }
+  else if(mode==='kwp'){ el.targetValueLabel.textContent='Valore obiettivo (kWp)'; el.targetValue.step='0.01'; el.targetValue.placeholder='Es. 8.00'; }
+  else { el.targetValueLabel.textContent='Valore obiettivo'; el.targetValue.step='0.01'; el.targetValue.placeholder='Automatico'; }
+}
+function getSiteCenter(){
+  if(currentLayer){ const c = currentLayer.getBounds().getCenter(); return {lat:c.lat, lon:c.lng}; }
+  const c = map.getCenter(); return {lat:c.lat, lon:c.lng};
+}
+
+// ─── PVGIS DIRETTO (no backend) ────────────────────────────────────────────
+// L'API JRC supporta CORS: chiamata diretta dal browser senza proxy.
+// ── Sostituisci con il tuo URL Cloudflare Worker dopo il deploy ──────────
+// Es: 'https://pvgis-proxy.tuonome.workers.dev'
+// Finché è null, l'app usa i proxy pubblici come fallback.
+const CF_WORKER = 'https://odd-tooth-cf91.nicolaallegretto99.workers.dev'; // <-- metti qui il tuo URL Worker
+const PVGIS_BASE = 'https://re.jrc.ec.europa.eu/api/v5_3/PVcalc';
+
+// Strategia multi-endpoint: diretto poi proxy CORS come fallback
+// Timeout helper
+function fetchWithTimeout(url, opts={}, ms=12000){
+  const ctrl = new AbortController();
+  const tid = setTimeout(()=>ctrl.abort(), ms);
+  return fetch(url, {...opts, signal:ctrl.signal}).finally(()=>clearTimeout(tid));
+}
+
+async function fetchPVGIS(params) {
+  const qs = params.toString();
+  const DIRECT   = `https://re.jrc.ec.europa.eu/api/v5_3/PVcalc?${qs}`;
+  const PROXY1   = `https://corsproxy.io/?url=${encodeURIComponent('https://re.jrc.ec.europa.eu/api/v5_3/PVcalc?'+qs)}`;
+  const PROXY2   = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://re.jrc.ec.europa.eu/api/v5_3/PVcalc?'+qs)}`;
+  const PROXY3   = `https://cors-anywhere.herokuapp.com/https://re.jrc.ec.europa.eu/api/v5_3/PVcalc?${qs}`;
+
+  const attempts = [
+    ...(CF_WORKER ? [{ label:'cloudflare', url:`${CF_WORKER}?${qs}`, opts:{} }] : []),
+    { label:'diretto',     url:DIRECT,  opts:{mode:'cors'} },
+    { label:'proxy1',      url:PROXY1,  opts:{} },
+    { label:'proxy2',      url:PROXY2,  opts:{} },
+    { label:'proxy3',      url:PROXY3,  opts:{headers:{'X-Requested-With':'XMLHttpRequest'}} },
+  ];
+
+  let lastErr = '';
+  for(const {label, url, opts} of attempts){
+    try{
+      const res = await fetchWithTimeout(url, opts, 15000);
+      if(!res.ok) { lastErr=`${label}: HTTP ${res.status}`; continue; }
+      const text = await res.text();
+      let d;
+      try{ d = JSON.parse(text); }catch(e){ lastErr=`${label}: risposta non JSON`; continue; }
+      if(d?.outputs?.totals?.fixed?.E_y != null) return d;
+      lastErr = `${label}: struttura risposta inattesa`;
+    }catch(e){
+      lastErr = `${label}: ${e.message}`;
+    }
+  }
+  throw new Error(`Nessun metodo ha funzionato.\nUltimo errore: ${lastErr}\n\nAssicurati di avere connessione internet e riprova.`);
+}
+
+async function updateFromPVGIS(){
+  if(!currentLayer){ alert('Disegna prima un\u2019area sulla mappa.'); return; }
+  const {lat, lon} = getSiteCenter();
+  const pwr = parseFloat(el.modulePower.value || 0);
+  const mode = el.targetMode.value;
+  const targetValue = parseFloat(el.targetValue.value || 0) || 0;
+  const maxModules = computeGridModules(Math.max(0, turf.area(polygonGeoJSON(currentLayer)) - Math.min(getOffsetArea(turf.area(polygonGeoJSON(currentLayer))), turf.area(polygonGeoJSON(currentLayer)))));
+  let peakpower = 0, requiredModules = 0;
+  if(mode==='kwp' && targetValue>0){ peakpower = targetValue; requiredModules = Math.ceil((targetValue*1000)/pwr); }
+  else if(mode==='modules' && targetValue>0){ requiredModules = Math.round(targetValue); peakpower = requiredModules * pwr / 1000; }
+  else { requiredModules = maxModules; peakpower = requiredModules * pwr / 1000; }
+
+  if(!peakpower || peakpower <= 0){ alert('Compila modulo e obiettivo prima di interrogare PVGIS.'); return; }
+
+  el.pvgisStatus.textContent = 'Connessione a PVGIS...';
+  el.pvgisBtn.disabled = true;
+  try{
+    const params = new URLSearchParams({
+      lat: lat.toFixed(6),
+      lon: lon.toFixed(6),
+      peakpower: peakpower.toFixed(3),
+      angle: String(parseFloat(el.tilt.value || 0)),
+      aspect: String(parseFloat(el.azimuth.value || 0)),
+      loss: String(parseFloat(el.losses.value || 0)),
+      outputformat: 'json'
+    });
+    const data = await fetchPVGIS(params);
+    const yearly = data?.outputs?.totals?.fixed?.E_y;
+    if(yearly == null) throw new Error('Risposta PVGIS non valida');
+    pvgisEnergyKwh = Number(yearly);
+    pvgisLastInputs = { lat, lon, peakpower, requiredModules };
+    el.pvgisStatus.textContent = `PVGIS aggiornato: ${fmt0(pvgisEnergyKwh)} kWh/anno`;
+    recalc();
+  }catch(err){
+    el.pvgisStatus.textContent = 'Errore PVGIS';
+    alert('Impossibile leggere PVGIS:\n' + err.message);
+  }finally{
+    el.pvgisBtn.disabled = false;
+  }
+}
+el.pvgisBtn.addEventListener('click', updateFromPVGIS);
+
+// Controlli azimut con bottoni +/-
+document.getElementById('azimuthMinus').addEventListener('click', ()=>{
+  const v = parseInt(el.azimuth.value||0); el.azimuth.value = Math.max(-180, v-10);
+  pvgisEnergyKwh=0; pvgisLastInputs=null; el.pvgisStatus.textContent='PVGIS da aggiornare'; recalc();
+});
+document.getElementById('azimuthPlus').addEventListener('click', ()=>{
+  const v = parseInt(el.azimuth.value||0); el.azimuth.value = Math.min(180, v+10);
+  pvgisEnergyKwh=0; pvgisLastInputs=null; el.pvgisStatus.textContent='PVGIS da aggiornare'; recalc();
+});
+document.querySelectorAll('.azimuth-preset').forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    el.azimuth.value = btn.dataset.val;
+    pvgisEnergyKwh=0; pvgisLastInputs=null; el.pvgisStatus.textContent='PVGIS da aggiornare'; recalc();
+  });
+});
+
+function recalc(){
+  updateTargetUi();
+  let gross=0, per=0, usable=0, off=0, modArea=0, maxModules=0, count=0, kwp=0;
+  let feasText='Disegna una superficie per ottenere la verifica.';
+  let feasBadge='In attesa di verifica';
+  let feasBoxClass='feas-neutral';
+  let feasBadgeClass='badge-neutral';
+
+  if(currentLayer){
+    gross = turf.area(polygonGeoJSON(currentLayer));
+    const latlngs = currentLayer.getLatLngs()[0] || [];
+    per = calcPerimeter(latlngs);
+    off = Math.min(getOffsetArea(gross), gross);
+    usable = Math.max(0, gross - off);
+
+    const mw = parseFloat(el.moduleWidth.value || 0), mh = parseFloat(el.moduleHeight.value || 0);
+    modArea = Math.max(0, mw*mh);
+    const pwr = parseFloat(el.modulePower.value || 0);
+    maxModules = computeGridModules(usable);
+
+    const targetMode = el.targetMode.value, targetValue = parseFloat(el.targetValue.value || 0) || 0;
+    let requestedModules = 0;
+    if(targetMode==='kwp' && targetValue>0 && pwr>0){ requestedModules = Math.ceil((targetValue*1000)/pwr); kwp = targetValue; }
+    else if(targetMode==='modules' && targetValue>0){ requestedModules = Math.round(targetValue); kwp = requestedModules*pwr/1000; }
+    else { requestedModules = maxModules; kwp = requestedModules*pwr/1000; }
+    count = requestedModules;
+
+    const availableKwp = maxModules * pwr / 1000;
+    const requestedArea = requestedModules * modArea;
+
+    if(!pwr || !modArea){
+      feasText='Compila correttamente i dati del modulo fotovoltaico per eseguire la verifica di fattibilità.';
+    } else if(targetMode==='kwp' && targetValue>0){
+      if(requestedModules <= maxModules){
+        feasText = `Esito verifica: <strong>configurazione implementabile</strong>. Per raggiungere <strong>${fmt(targetValue,2)} kWp</strong> servono <strong>${fmt0(requestedModules)} moduli</strong>, con un'occupazione indicativa di <strong>${fmt(requestedArea,1)} m²</strong>.`;
+        feasBadge='Configurazione implementabile'; feasBoxClass='feas-ok'; feasBadgeClass='badge-ok';
+      } else {
+        feasText = `Esito verifica: <strong>configurazione non implementabile</strong>. Per ${fmt(targetValue,2)} kWp servirebbero <strong>${fmt0(requestedModules)} moduli</strong>, ma l'area ne consente circa <strong>${fmt0(maxModules)}</strong>. Potenza massima compatibile: <strong>${fmt(availableKwp,2)} kWp</strong>.`;
+        feasBadge='Configurazione non implementabile'; feasBoxClass='feas-no'; feasBadgeClass='badge-no';
+      }
+    } else if(targetMode==='modules' && targetValue>0){
+      if(requestedModules <= maxModules){
+        feasText = `Esito verifica: <strong>configurazione implementabile</strong>. L'obiettivo di <strong>${fmt0(requestedModules)} moduli</strong> è compatibile con l'area utile. Potenza: <strong>${fmt(kwp,2)} kWp</strong>.`;
+        feasBadge='Configurazione implementabile'; feasBoxClass='feas-ok'; feasBadgeClass='badge-ok';
+      } else {
+        feasText = `Esito verifica: <strong>configurazione non implementabile</strong>. L'obiettivo di <strong>${fmt0(requestedModules)} moduli</strong> supera la capacità dell'area (circa <strong>${fmt0(maxModules)}</strong>). Potenza massima: <strong>${fmt(availableKwp,2)} kWp</strong>.`;
+        feasBadge='Configurazione non implementabile'; feasBoxClass='feas-no'; feasBadgeClass='badge-no';
+      }
+    } else {
+      feasText = `Esito verifica: <strong>configurazione implementabile</strong>. In modalità automatica l'area consente circa <strong>${fmt0(maxModules)} moduli</strong>, pari a <strong>${fmt(availableKwp,2)} kWp</strong>.`;
+      feasBadge='Configurazione implementabile'; feasBoxClass='feas-ok'; feasBadgeClass='badge-ok';
+    }
+  }
+
+  el.grossArea.textContent = fmt(gross,1);
+  el.perimeter.textContent = fmt(per,1);
+  el.usableArea.textContent = fmt(usable,1);
+  el.offsetArea.textContent = fmt(off,1);
+  el.moduleArea.textContent = fmt(modArea,2);
+  el.modulesCount.textContent = fmt0(count);
+  el.kwp.textContent = fmt(kwp,2);
+  el.annualEnergy.textContent = fmt0(pvgisEnergyKwh);
+  el.feasibilityText.innerHTML = feasText;
+  el.feasibilityBadge.textContent = feasBadge;
+  el.feasibilityBadge.className = `pill ${feasBadgeClass}`;
+  el.feasibilityBox.className = `section ${feasBoxClass}`;
+  const offsetText = el.offsetMode.value==='percent' ? `${fmt(parseFloat(el.offsetValue.value||0),1)} %` : `${fmt(parseFloat(el.offsetValue.value||0),1)} m²`;
+  const site = el.clientName.value.trim();
+  el.summary.innerHTML = currentLayer
+    ? `Stima preliminare${site ? ` per <strong>${esc(site)}</strong>` : ''}: superficie lorda <strong>${fmt(gross,1)} m²</strong>, utile <strong>${fmt(usable,1)} m²</strong>, modulo <strong>${esc(el.moduleName.value || 'senza nome')}</strong>, moduli <strong>${fmt0(count)}</strong>, potenza <strong>${fmt(kwp,2)} kWp</strong>, producibilità PVGIS <strong>${fmt0(pvgisEnergyKwh)} kWh/anno</strong>. Offset: <strong>${offsetText}</strong>. ${el.feasibilityText.textContent}`
+    : 'Disegna una superficie per ottenere il riepilogo.';
+}
+
+map.on(L.Draw.Event.CREATED, e => { drawnItems.clearLayers(); drawnItems.addLayer(e.layer); currentLayer=e.layer; pvgisEnergyKwh=0; pvgisLastInputs=null; recalc(); });
+map.on(L.Draw.Event.EDITED, e => { e.layers.eachLayer(layer => currentLayer=layer); pvgisEnergyKwh=0; pvgisLastInputs=null; recalc(); });
+map.on(L.Draw.Event.DELETED, ()=>{ currentLayer=null; pvgisEnergyKwh=0; pvgisLastInputs=null; closePanel(); recalc(); });
+
+['offsetMode','offsetValue','moduleName','modulePower','moduleWidth','moduleHeight','edgeGap','moduleGap','moduleOrientation','tilt','azimuth','losses','clientName','targetMode','targetValue']
+.forEach(id => { $(id).addEventListener('input', ()=>{ if(['modulePower','tilt','azimuth','losses','targetMode','targetValue'].includes(id)){ pvgisEnergyKwh=0; pvgisLastInputs=null; el.pvgisStatus.textContent='PVGIS da aggiornare'; } recalc(); }); $(id).addEventListener('change', ()=>{ if(['modulePower','tilt','azimuth','losses','targetMode','targetValue'].includes(id)){ pvgisEnergyKwh=0; pvgisLastInputs=null; el.pvgisStatus.textContent='PVGIS da aggiornare'; } recalc(); }); });
+
+const STORAGE_KEY = 'pv-module-library-pvgis-v1';
+function loadModules(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return[]} }
+function saveModules(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function currentModule(){ return { id:Date.now().toString(36), name:el.moduleName.value.trim()||'Modulo', power:+el.modulePower.value||0, width:+el.moduleWidth.value||0, height:+el.moduleHeight.value||0 }; }
+function applyModule(m){ el.moduleName.value=m.name; el.modulePower.value=m.power; el.moduleWidth.value=m.width; el.moduleHeight.value=m.height; pvgisEnergyKwh=0; el.pvgisStatus.textContent='PVGIS da aggiornare'; recalc(); }
+function renderLibrary(){
+  const list = loadModules();
+  el.moduleLibrary.innerHTML = !list.length ? '<div class="helper">Nessun modulo salvato.</div>' : list.map(m => `
+    <div class="module-card">
+      <h4>${esc(m.name)}</h4>
+      <div class="meta">${fmt0(m.power)} Wp · ${fmt(m.width,3)} × ${fmt(m.height,3)} m</div>
+      <div class="row"><button class="primary small" data-act="use" data-id="${m.id}">Usa</button><button class="ghost small" data-act="del" data-id="${m.id}">Elimina</button></div>
+    </div>`).join('');
+  [...el.moduleLibrary.querySelectorAll('button')].forEach(btn => btn.addEventListener('click', ()=>{
+    const list = loadModules(); const item = list.find(x => x.id === btn.dataset.id); if(!item) return;
+    if(btn.dataset.act==='use') applyModule(item);
+    if(btn.dataset.act==='del'){ saveModules(list.filter(x => x.id !== item.id)); renderLibrary(); }
+  }));
+}
+el.saveModuleBtn.addEventListener('click', ()=>{ const m=currentModule(); if(!m.name||!m.power||!m.width||!m.height){ alert('Compila nome, potenza e dimensioni del modulo.'); return; } const list=loadModules(); list.unshift(m); saveModules(list.slice(0,30)); renderLibrary(); el.moduleLibrary.classList.add('show'); el.toggleLibraryBtn.textContent='📚 Nascondi libreria'; });
+el.toggleLibraryBtn.addEventListener('click', ()=>{ renderLibrary(); const open = el.moduleLibrary.classList.toggle('show'); el.toggleLibraryBtn.textContent = open ? '📚 Nascondi libreria' : '📚 Libreria moduli'; });
+
+function reportCard(title,value){ return `<div style="border:1px solid #d5dde8;border-radius:14px;padding:14px;background:#fff"><div style="font-size:12px;color:#66768a;margin-bottom:6px">${title}</div><div style="font-size:24px;font-weight:800;color:#16385f">${value}</div></div>`; }
+function buildReportHTML(){
+  const site = el.clientName.value.trim() || 'Sito non specificato';
+  const now = new Date().toLocaleString('it-IT');
+  return `<div style="font-family:Inter,Arial,sans-serif;color:#111"><div style="padding:20px 0 14px;border-bottom:3px solid #16385f"><div style="font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#58718e">Prefattibilità fotovoltaica</div><div style="font-size:28px;font-weight:800;color:#16385f;margin-top:6px">Report preliminare di installabilità</div><div style="font-size:14px;color:#5b6877;margin-top:6px">Cliente / sito: <strong>${esc(site)}</strong></div><div style="font-size:12px;color:#5b6877;margin-top:4px">Data: ${esc(now)}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px">${reportCard('Area lorda', `${el.grossArea.textContent} m²`)}${reportCard('Area utile', `${el.usableArea.textContent} m²`)}${reportCard('Moduli richiesti', `${el.modulesCount.textContent} pz`)}${reportCard('Potenza considerata', `${el.kwp.textContent} kWp`)}${reportCard('Produzione annua PVGIS', `${el.annualEnergy.textContent} kWh/anno`)}${reportCard('Esito', `${esc(el.feasibilityBadge.textContent)}`)}</div><div style="margin-top:18px;padding:16px;border:1px solid #d5dde8;border-radius:14px;background:#f7fafd"><div style="font-size:16px;font-weight:800;color:#16385f;margin-bottom:10px">Sintesi tecnica</div><div style="font-size:14px;line-height:1.65">${el.summary.innerHTML}</div></div></div>`;
+}
+el.printReportBtn.addEventListener('click', ()=>{ if(!currentLayer){ alert('Disegna prima un\u2019area.'); return; } const w=window.open('','_blank'); if(!w){ alert('Il browser sta bloccando la finestra di stampa.'); return; } w.document.open(); w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Report prefattibilità FV</title><style>body{font-family:Inter,Arial,sans-serif;background:#fff;color:#111;margin:0;padding:24px}@page{size:A4;margin:14mm}</style></head><body>${buildReportHTML()}</body></html>`); w.document.close(); setTimeout(()=>{ w.focus(); w.print(); },400); });
+el.copySummaryBtn.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(el.summary.textContent.trim()); alert('Riepilogo copiato.'); }catch{ alert('Impossibile copiare il riepilogo.'); } });
+
+renderLibrary();
+recalc();
+</script>
+</body>
+</html>
