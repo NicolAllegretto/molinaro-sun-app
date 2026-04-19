@@ -395,7 +395,11 @@ el.gpsBtn.addEventListener('click', ()=>{
       const msgs = {1:'Permesso negato. Abilita la posizione per questo sito nelle impostazioni del browser.', 2:'Segnale GPS non disponibile. Riprova all\'aperto.', 3:'Timeout GPS. Riprova.'};
       alert(msgs[err.code] || 'Impossibile ottenere la posizione.');
     },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    {
+  enableHighAccuracy: false,
+  timeout: 20000,
+  maximumAge: 60000
+}
   );
 });
 
