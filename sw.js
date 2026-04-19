@@ -9,5 +9,5 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-  // Lascia passare tutto senza cache aggressiva
+  // Nessuna cache aggressiva: lasciamo passare tutto.
 });
